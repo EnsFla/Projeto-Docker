@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: teste
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+  backend:
+    image: ensfla/fixback:1.4
+    build: /backend
+    environment:
+      JWT_SECRET: chave_super_secreta
+      DATA_BASE_URL: postgres://postgres:postgres@db:5432/teste
+      PORT: 5000
+    depends_on:
+      - db
+    ports:
+      - 5000:5000
+  frontend:
+    image: ensfla/fixfront:1.4
+    build: /frontend
+    depends_on:
+      - backend
+    command: sh -lc "npm run dev -- --host 0.0.0.0 --port 5173 --strictPort"
+    ports:
+      - 5173:5173
+    environment:
+      - CHOKIDAR_USERPOLLING=true
